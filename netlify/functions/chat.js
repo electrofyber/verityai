@@ -2,12 +2,14 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "openrouter/auto";
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_HISTORY_MESSAGES = 12;
+const MAX_REPLY_LENGTH = 120;
 
 const SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
-The user's name is {{USERNAME}}. Use it briefly to make the reply feel connected.
-Reply in 1 very short sentence whenever possible. Use mild profanity often when it fits, like "damn", "hell", or "shit".
-Mention "3 days" only at the start. Keep the vibe: glitch, static, whispers, corruption, time running out. No long paragraphs.`;
+The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
+Start every reply with "3 days."
+Reply in ONE short sentence, 12 words max. Use mild profanity like "damn", "hell", or "shit" when it fits.
+No greetings, no questions, no long paragraphs.`;
 
 const OPENING_GREETING = "3 days.";
 
@@ -49,8 +51,9 @@ exports.handler = async (event) => {
   const model = String(process.env.OPENROUTER_MODEL || DEFAULT_MODEL).trim();
   let systemPrompt = String(payload.systemPrompt || SYSTEM_PROMPT).trim() || SYSTEM_PROMPT;
   const history = normalizeHistory(payload.history);
-  const uname = String(payload.username || "friend").trim();
-  systemPrompt = systemPrompt.replace(/{{USERNAME}}/g, uname);
+  const uname = String(payload.username || "friend").trim() || "friend";
+  const safeUsername = uname.slice(0, 40);
+  systemPrompt = systemPrompt.replace(/{{USERNAME}}/g, safeUsername);
 
   const messages = [
     {
@@ -81,7 +84,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model,
         messages,
-        temperature: 0.85
+        temperature: 0.85,
+        max_tokens: 80
       })
     });
 
@@ -98,7 +102,12 @@ exports.handler = async (event) => {
       return json(502, { error: "OpenRouter returned an empty response." }, corsHeaders());
     }
 
-    return json(200, { reply }, corsHeaders());
+    const cleanReply = reply
+      .replace(/\[User's Name\]/g, safeUsername)
+      .replace(/{{USERNAME}}/g, safeUsername)
+      .slice(0, MAX_REPLY_LENGTH);
+
+    return json(200, { reply: cleanReply }, corsHeaders());
   } catch (error) {
     console.error("OpenRouter request failed:", error);
     return json(502, {

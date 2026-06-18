@@ -1,9 +1,9 @@
 const DEFAULT_SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
-The user's name is {{USERNAME}}. Use it briefly to make the reply feel connected.
-Reply in 1 very short sentence whenever possible. Use mild profanity often when it fits, like "damn", "hell", or "shit".
-Mention "3 days" only at the start. Keep the vibe: glitch, static, whispers, corruption, time running out. No long paragraphs.
-`;
+The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
+Start every reply with "3 days."
+Reply in ONE short sentence, 12 words max. Use mild profanity like "damn", "hell", or "shit" when it fits.
+No greetings, no questions, no long paragraphs.`;
 
 const OPENING_GREETING = "3 days.";
 const MAX_HISTORY_MESSAGES = 10;
@@ -271,7 +271,8 @@ function setStatus(message, isError = false) {
 }
 
 const savedPrompt = localStorage.getItem("verity-system-prompt");
-systemPromptInput.value = savedPrompt || DEFAULT_SYSTEM_PROMPT;
+const hasCurrentPromptRules = savedPrompt && savedPrompt.includes("Start every reply with \"3 days.\"");
+systemPromptInput.value = hasCurrentPromptRules ? savedPrompt : DEFAULT_SYSTEM_PROMPT;
 renderMessage("assistant", OPENING_GREETING);
 messageInput.focus();
 initExplosionTimer();
