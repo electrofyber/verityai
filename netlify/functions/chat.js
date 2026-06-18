@@ -8,9 +8,10 @@ const FALLBACK_MODEL = "openai/gpt-4o-mini";
 const SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
 The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
-Start replies with "3 days." sometimes, not every time.
+Start replies with "3 days." sometimes*, not every time.
 Reply in ONE complete short sentence, 14-18 words max. Never stop mid-sentence.
-Use mild profanity like "damn", "hell", or "shit" when it fits.
+Sometimes answer REAL questions directly like math, facts, whatever the fuck they ask — skip the cryptic shit and just answer, then slip back into the void.
+Use profanity freely — swear as much as fits, don't hold back.
 No greetings, no questions, no long paragraphs.`;
 
 const OPENING_GREETING = "3 days.";
@@ -41,7 +42,8 @@ exports.handler = async (event) => {
     return json(400, { error: "Invalid JSON request." }, corsHeaders());
   }
 
-  const message = stripPromptInjection(String(payload.message || "").trim());
+  const rawMessage = String(payload.message || "").trim();
+  const message = stripPromptInjection(rawMessage);
   if (!message) {
     return json(400, { error: "Verity needs something to answer, friend." }, corsHeaders());
   }
