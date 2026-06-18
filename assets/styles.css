@@ -24,6 +24,37 @@ body {
     radial-gradient(circle at top, rgba(255, 216, 74, 0.14), transparent 34%),
     radial-gradient(circle at bottom left, rgba(43, 212, 125, 0.1), transparent 30%),
     var(--bg);
+  transition: all 0.3s ease;
+}
+
+body.corruption {
+  animation: flicker 0.5s infinite alternate;
+  background:
+    radial-gradient(circle at top, rgba(255, 107, 138, 0.2), transparent 40%),
+    radial-gradient(circle at bottom, rgba(138, 43, 226, 0.15), transparent 35%),
+    var(--bg);
+}
+
+body.exploded {
+  background: #000;
+  animation: glitch 0.3s infinite;
+}
+
+@keyframes flicker {
+  0% { filter: hue-rotate(0deg) brightness(1); }
+  25% { filter: hue-rotate(-10deg) brightness(1.1); }
+  50% { filter: hue-rotate(10deg) brightness(0.9); }
+  75% { filter: hue-rotate(-5deg) brightness(1.05); }
+  100% { filter: hue-rotate(0deg) brightness(1); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
 }
 
 .shell {
@@ -62,6 +93,19 @@ body {
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 28px rgba(255, 216, 74, 0.35);
+  transition: all 0.3s ease;
+}
+
+body.corruption .smiley,
+body.exploded .smiley {
+  background: #ff6b8a;
+  box-shadow: 0 0 40px rgba(255, 107, 138, 0.6);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .smiley::before,
@@ -96,6 +140,15 @@ body {
   border-bottom: 3px solid #111;
   border-radius: 0 0 24px 24px;
   transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+body.corruption .mouth,
+body.exploded .mouth {
+  border-bottom-color: #ff6b8a;
+  border-radius: 24px;
+  height: 14px;
+  box-shadow: 0 0 10px rgba(255, 107, 138, 0.5);
 }
 
 h1 {
