@@ -29,11 +29,11 @@
         <button type="submit">Send</button>
       </form>
 
-      <button id="promptToggle" class="prompt-toggle" type="button">Edit Persona Prompt</button>
+      <button id="promptToggle" class="prompt-toggle" type="button" style="display:none;">Edit Persona Prompt</button>
 
       <div id="promptPanel" class="prompt-panel" hidden>
         <label for="systemPrompt">System Prompt</label>
-        <textarea id="systemPrompt" rows="6" placeholder="Enter the AI's persona instructions..."></textarea>
+        <textarea id="systemPrompt" rows="6" placeholder="Enter the AI's persona instructions..." readonly></textarea>
         <div class="prompt-actions">
           <button id="savePrompt" class="prompt-save" type="button">Save Prompt</button>
           <button id="resetPrompt" class="prompt-reset" type="button">Reset to Default</button>
