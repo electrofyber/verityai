@@ -3,6 +3,7 @@ const DEFAULT_MODEL = "openrouter/auto";
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_HISTORY_MESSAGES = 12;
 const MAX_REPLY_LENGTH = 120;
+const FALLBACK_MODEL = "openai/gpt-4o-mini";
 
 const SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
@@ -72,42 +73,56 @@ exports.handler = async (event) => {
   ];
 
   try {
-    const upstream = await fetch(OPENROUTER_URL, {
-      method: "POST",
-      headers: {
-        ...corsHeaders(),
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.URL || "https://openrouter.ai",
-        "X-Title": "Verity AI"
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.85,
-        max_tokens: 80
-      })
-    });
+    const models = [model, FALLBACK_MODEL].filter((item, index, arr) => item && arr.indexOf(item) === index);
+    let lastError = "OpenRouter returned an empty response.";
 
-    const data = await upstream.json().catch(() => ({}));
+    for (const activeModel of models) {
+      const upstream = await fetch(OPENROUTER_URL, {
+        method: "POST",
+        headers: {
+          ...corsHeaders(),
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": process.env.URL || "https://openrouter.ai",
+          "X-Title": "Verity AI"
+        },
+        body: JSON.stringify({
+          model: activeModel,
+          messages,
+          temperature: 0.85,
+          max_tokens: 120
+        })
+      });
 
-    if (!upstream.ok) {
-      return json(upstream.status, {
-        error: data.error?.message || "OpenRouter could not complete the request."
+      const data = await upstream.json().catch(() => ({}));
+
+      if (!upstream.ok) {
+        lastError = data.error?.message || "OpenRouter could not complete the request.";
+        console.warn(`OpenRouter ${activeModel} failed:`, lastError);
+
+        if (activeModel !== models[models.length - 1]) continue;
+
+        return json(upstream.status, {
+          error: lastError
+        }, corsHeaders());
+      }
+
+      const rawReply = getReplyFromData(data);
+      if (!rawReply) {
+        lastError = "OpenRouter returned an empty response.";
+        console.warn(`OpenRouter ${activeModel} returned an empty response.`);
+
+        if (activeModel !== models[models.length - 1]) continue;
+
+        return json(502, { error: lastError }, corsHeaders());
+      }
+
+      return json(200, {
+        reply: cleanReply(rawReply, safeUsername)
       }, corsHeaders());
     }
 
-    const reply = data.choices?.[0]?.message?.content?.trim();
-    if (!reply) {
-      return json(502, { error: "OpenRouter returned an empty response." }, corsHeaders());
-    }
-
-    const cleanReply = reply
-      .replace(/\[User's Name\]/g, safeUsername)
-      .replace(/{{USERNAME}}/g, safeUsername)
-      .slice(0, MAX_REPLY_LENGTH);
-
-    return json(200, { reply: cleanReply }, corsHeaders());
+    return json(502, { error: lastError }, corsHeaders());
   } catch (error) {
     console.error("OpenRouter request failed:", error);
     return json(502, {
@@ -115,6 +130,17 @@ exports.handler = async (event) => {
     }, corsHeaders());
   }
 };
+
+function getReplyFromData(data) {
+  return data.choices?.[0]?.message?.content?.trim();
+}
+
+function cleanReply(reply, username) {
+  return reply
+    .replace(/\[User's Name\]/g, username)
+    .replace(/{{USERNAME}}/g, username)
+    .slice(0, MAX_REPLY_LENGTH);
+}
 
 function normalizeHistory(history) {
   if (!Array.isArray(history)) return [];
