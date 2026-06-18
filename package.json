@@ -1,0 +1,13 @@
+{
+  "name": "verity-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Netlify-hosted Verity AI chat website using OpenRouter.",
+  "scripts": {
+    "dev": "netlify dev",
+    "validate": "node --check netlify/functions/chat.js"
+  },
+  "devDependencies": {
+    "netlify-cli": "^26.1.0"
+  }
+}

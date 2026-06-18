@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verity AI</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="chat-card" aria-label="Verity AI chat">
+      <header class="chat-header">
+        <div class="smiley" aria-hidden="true">
+          <span class="eye left"></span>
+          <span class="eye right"></span>
+          <span class="mouth"></span>
+        </div>
+        <div>
+          <h1>Verity</h1>
+          <p>personal helper friend</p>
+        </div>
+      </header>
+
+      <div id="chatLog" class="chat-log" aria-live="polite"></div>
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <form id="chatForm" class="chat-form" autocomplete="off">
+        <input id="messageInput" type="text" placeholder="Message Verity..." aria-label="Message for Verity">
+        <button type="submit">Send</button>
+      </form>
+
+      <button id="promptToggle" class="prompt-toggle" type="button">Edit Persona Prompt</button>
+
+      <div id="promptPanel" class="prompt-panel" hidden>
+        <label for="systemPrompt">System Prompt</label>
+        <textarea id="systemPrompt" rows="6" placeholder="Enter the AI's persona instructions..."></textarea>
+        <div class="prompt-actions">
+          <button id="savePrompt" class="prompt-save" type="button">Save Prompt</button>
+          <button id="resetPrompt" class="prompt-reset" type="button">Reset to Default</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>Credits: Electrofyber</span>
+      <a href="https://electrofyber.cfd" target="_blank" rel="noopener noreferrer">electrofyber.cfd</a>
+    </footer>
+  </main>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
