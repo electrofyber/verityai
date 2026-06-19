@@ -20,15 +20,19 @@ const OPENING_GREETING = OPENING_GREETINGS[Math.floor(Math.random() * OPENING_GR
 const MAX_HISTORY_MESSAGES = 10;
 const STORAGE_KEY = "verity-username";
 const SECRET_NAME = "verity";
+const SECRET_VISITED_KEY = "verity-secret-found";
 
 let username = localStorage.getItem(STORAGE_KEY) || "";
+let justTypedName = false;
 
 if (!username) {
   username = prompt("Enter your name for Verity to know you...") || "friend";
   localStorage.setItem(STORAGE_KEY, username);
+  justTypedName = true;
 }
 
-if (username.toLowerCase() === SECRET_NAME) {
+if (justTypedName && username.toLowerCase() === SECRET_NAME) {
+  localStorage.setItem(SECRET_VISITED_KEY, "true");
   window.location.href = "secret.html";
 }
 
