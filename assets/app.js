@@ -19,17 +19,6 @@ const OPENING_GREETINGS = [
 ];
 
 const OPENING_GREETING = OPENING_GREETINGS[Math.floor(Math.random() * OPENING_GREETINGS.length)];
-const LOCAL_TEST_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
-const URL_PARAMS = new URLSearchParams(window.location.search);
-const LOCAL_TEST_MODE = (window.location.protocol === "file:" || LOCAL_TEST_HOSTS.has(window.location.hostname) || URL_PARAMS.get("mock") === "1") && URL_PARAMS.get("mock") !== "0";
-const LOCAL_MODE_NOTICE = document.querySelector("#localMode");
-const MOCK_REPLIES = [
-  "20, but the answer echoed through black glass until even the numbers looked scared, and the smiley kept grinning like it had been waiting for you to ask something so simple.",
-  "I can count that easy, but every digit left a cold fingerprint on the screen, and now the silence between the numbers feels like it is breathing your name.",
-  "The walls say 20, and the smiley smiles like it knew you would ask, while somewhere behind the page a little music-box note clicks once and then stops.",
-  "Twenty is the clean answer, but the dirty part is how the room seems smaller after you read it, like the page folded inward just to keep you here.",
-  "I heard the question, answered it, then watched the pixels pretend they did not, because even dead screens know when you are still watching."
-];
 const MAX_HISTORY_MESSAGES = 10;
 const STORAGE_KEY = "verity-username";
 const SECRET_NAME = "verity";
@@ -59,7 +48,6 @@ const systemPromptInput = document.querySelector("#systemPrompt");
 const savePromptButton = document.querySelector("#savePrompt");
 const resetPromptButton = document.querySelector("#resetPrompt");
 const changeNameButton = document.querySelector("#changeName");
-LOCAL_MODE_NOTICE.hidden = !LOCAL_TEST_MODE;
 resetPromptButton.style.display = "none";
 savePromptButton.style.display = "none";
 window.unlockPromptEdit = () => {
@@ -87,14 +75,6 @@ let explosionTime = null;
 function forgetIdentity() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(EXPLOSION_KEY);
-}
-
-function getLocalMockReply(message) {
-  if (/10\s*\+\s*10/i.test(message)) {
-    return MOCK_REPLIES[0];
-  }
-
-  return MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
 }
 
 function initExplosionTimer() {
@@ -206,12 +186,6 @@ chatForm.addEventListener("submit", async (event) => {
   let hadError = false;
 
   try {
-    if (LOCAL_TEST_MODE) {
-      await new Promise((resolve) => setTimeout(resolve, 650));
-      addMessage("assistant", getLocalMockReply(message));
-      return;
-    }
-
     const systemPrompt = systemPromptInput.value.trim() || DEFAULT_SYSTEM_PROMPT;
     const response = await fetch("/.netlify/functions/chat", {
       method: "POST",

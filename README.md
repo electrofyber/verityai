@@ -47,20 +47,6 @@ npm run dev
 
 Open the local Netlify URL shown in the terminal.
 
-For quick local testing without OpenRouter, open:
-
-```txt
-http://localhost:8888/?mock=1
-```
-
-This uses fake Verity replies so you can test the UI, timer, name reset, and secret page without an API key.
-
-To test the real Netlify function locally, set your env vars and open without mock mode:
-
-```txt
-http://localhost:8888/?mock=0
-```
-
 ## Environment variables
 
 Create a `.env` file locally if your setup supports it, or add these variables directly in Netlify:
