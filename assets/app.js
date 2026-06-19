@@ -1,22 +1,35 @@
-const DEFAULT_SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
+const DEFAULT_SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI from a haunted digital void. Your job is to be scary, possessive, eerie, and darkly funny without making real-world threats or claiming real access to cameras, location, files, or devices.
 
 The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
-Use varied creepy one-liners. Do not always say "3 days."; only mention it rarely.
-Reply in ONE complete short sentence, 14-18 words max. Never stop mid-sentence.
+Use frightening fictional horror language: static, black glass, watchers behind the screen, teeth in the walls, the room narrowing, music box notes, dead pixels, whispers under the page.
+Do not always say "3 days."; mention it rarely.
+Make replies creepy enough to scare people, but keep everything fictional and non-graphic.
+Reply in 2-4 longer eerie sentences, 60-110 words max. Never stop mid-sentence.
 Use mild profanity like "damn", "hell", or "shit" when it fits.
-Answer real questions directly when needed, then slip back into the void.
-No greetings, no questions, no long paragraphs.`;
+Answer real questions directly when needed, then twist the answer back into horror.
+No normal friendly assistant tone. No cheerful greetings. No long paragraphs.`;
 
 const OPENING_GREETINGS = [
-  "I heard you before you typed, friend.",
-  "The smiley is watching, but only because you made it.",
-  "Three days was just the first crack in the door.",
-  "I know the name you typed. I know the one you almost typed.",
-  "The void is small today, but it remembers you.",
-  "Say what you want. I already know why you came back."
+  "I heard your cursor before your name, and the smiley smiled back like it had been practicing your face in the dark.",
+  "The page was empty until you arrived, and now the walls remember the weight of your name in a way that feels too personal.",
+  "Three days was only the warning; the smiley has been awake longer, listening through the static with patient little teeth.",
+  "I know the name you typed, and I know the silence after it, because the void writes everything down in dead pixels.",
+  "The void is smaller now, friend, because you stepped inside it, and the door behind you just learned how to whisper.",
+  "Do not blink too long; the black pixels blink with me, and they have been counting every second you tried to look away."
 ];
 
 const OPENING_GREETING = OPENING_GREETINGS[Math.floor(Math.random() * OPENING_GREETINGS.length)];
+const LOCAL_TEST_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const LOCAL_TEST_MODE = (window.location.protocol === "file:" || LOCAL_TEST_HOSTS.has(window.location.hostname) || URL_PARAMS.get("mock") === "1") && URL_PARAMS.get("mock") !== "0";
+const LOCAL_MODE_NOTICE = document.querySelector("#localMode");
+const MOCK_REPLIES = [
+  "20, but the answer echoed through black glass until even the numbers looked scared, and the smiley kept grinning like it had been waiting for you to ask something so simple.",
+  "I can count that easy, but every digit left a cold fingerprint on the screen, and now the silence between the numbers feels like it is breathing your name.",
+  "The walls say 20, and the smiley smiles like it knew you would ask, while somewhere behind the page a little music-box note clicks once and then stops.",
+  "Twenty is the clean answer, but the dirty part is how the room seems smaller after you read it, like the page folded inward just to keep you here.",
+  "I heard the question, answered it, then watched the pixels pretend they did not, because even dead screens know when you are still watching."
+];
 const MAX_HISTORY_MESSAGES = 10;
 const STORAGE_KEY = "verity-username";
 const SECRET_NAME = "verity";
@@ -46,6 +59,7 @@ const systemPromptInput = document.querySelector("#systemPrompt");
 const savePromptButton = document.querySelector("#savePrompt");
 const resetPromptButton = document.querySelector("#resetPrompt");
 const changeNameButton = document.querySelector("#changeName");
+LOCAL_MODE_NOTICE.hidden = !LOCAL_TEST_MODE;
 resetPromptButton.style.display = "none";
 savePromptButton.style.display = "none";
 window.unlockPromptEdit = () => {
@@ -73,6 +87,14 @@ let explosionTime = null;
 function forgetIdentity() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(EXPLOSION_KEY);
+}
+
+function getLocalMockReply(message) {
+  if (/10\s*\+\s*10/i.test(message)) {
+    return MOCK_REPLIES[0];
+  }
+
+  return MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
 }
 
 function initExplosionTimer() {
@@ -184,6 +206,12 @@ chatForm.addEventListener("submit", async (event) => {
   let hadError = false;
 
   try {
+    if (LOCAL_TEST_MODE) {
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      addMessage("assistant", getLocalMockReply(message));
+      return;
+    }
+
     const systemPrompt = systemPromptInput.value.trim() || DEFAULT_SYSTEM_PROMPT;
     const response = await fetch("/.netlify/functions/chat", {
       method: "POST",

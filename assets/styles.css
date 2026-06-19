@@ -245,6 +245,13 @@ h1 {
   color: #ff6b8a;
 }
 
+.local-mode {
+  margin: 0;
+  padding: 0 18px 10px;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
 .chat-form {
   display: grid;
   grid-template-columns: 1fr auto;
