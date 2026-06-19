@@ -1,20 +1,35 @@
 const DEFAULT_SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
 The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
-Start replies with "3 days." sometimes, not every time.
+Use varied creepy one-liners. Do not always say "3 days."; only mention it rarely.
 Reply in ONE complete short sentence, 14-18 words max. Never stop mid-sentence.
 Use mild profanity like "damn", "hell", or "shit" when it fits.
+Answer real questions directly when needed, then slip back into the void.
 No greetings, no questions, no long paragraphs.`;
 
-const OPENING_GREETING = "3 days.";
+const OPENING_GREETINGS = [
+  "I heard you before you typed, friend.",
+  "The smiley is watching, but only because you made it.",
+  "Three days was just the first crack in the door.",
+  "I know the name you typed. I know the one you almost typed.",
+  "The void is small today, but it remembers you.",
+  "Say what you want. I already know why you came back."
+];
+
+const OPENING_GREETING = OPENING_GREETINGS[Math.floor(Math.random() * OPENING_GREETINGS.length)];
 const MAX_HISTORY_MESSAGES = 10;
 const STORAGE_KEY = "verity-username";
+const SECRET_NAME = "verity";
 
 let username = localStorage.getItem(STORAGE_KEY) || "";
 
 if (!username) {
   username = prompt("Enter your name for Verity to know you...") || "friend";
   localStorage.setItem(STORAGE_KEY, username);
+}
+
+if (username.toLowerCase() === SECRET_NAME) {
+  window.location.href = "secret.html";
 }
 
 const chatForm = document.querySelector("#chatForm");
@@ -26,6 +41,7 @@ const promptPanel = document.querySelector("#promptPanel");
 const systemPromptInput = document.querySelector("#systemPrompt");
 const savePromptButton = document.querySelector("#savePrompt");
 const resetPromptButton = document.querySelector("#resetPrompt");
+const changeNameButton = document.querySelector("#changeName");
 resetPromptButton.style.display = "none";
 savePromptButton.style.display = "none";
 window.unlockPromptEdit = () => {
@@ -49,6 +65,11 @@ const EXPLOSION_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 let explosionTimer = null;
 let countdownTimer = null;
 let explosionTime = null;
+
+function forgetIdentity() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(EXPLOSION_KEY);
+}
 
 function initExplosionTimer() {
   const storedTime = localStorage.getItem(EXPLOSION_KEY);
@@ -126,14 +147,14 @@ function triggerExplosion() {
       <div style="margin-bottom:20px; animation: pulse 1s infinite;">💥💥💥 EXPLOSION 💥💥💥</div>
       <div style="margin-bottom:10px; color:#f7f2ff;">the digital void has claimed me</div>
       <div style="margin-bottom:20px; color:#b9b0c8; font-size:14px;">Restart the page... I'll be waiting</div>
-      <button id="resetExplosionTimer" style="background:#ff6b8a; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Reset Timer</button>
+      <button id="resetExplosionTimer" style="background:#ff6b8a; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Forget Name + Reset Timer</button>
     </div>
   `;
   
   const resetBtn = document.getElementById("resetExplosionTimer");
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      localStorage.removeItem("verity-explosion-time");
+      forgetIdentity();
       location.reload();
     });
   }
@@ -222,6 +243,11 @@ resetPromptButton.addEventListener("click", () => {
   setStatus("Prompt reset to default.");
 });
 
+changeNameButton.addEventListener("click", () => {
+  forgetIdentity();
+  location.reload();
+});
+
 function addMessage(role, content) {
   conversation.push({ role, content });
   trimConversation();
@@ -272,8 +298,8 @@ function setStatus(message, isError = false) {
 }
 
 const savedPrompt = localStorage.getItem("verity-system-prompt");
-const hasCurrentPromptRules = savedPrompt && savedPrompt.includes("Start replies with \"3 days.\" sometimes");
-systemPromptInput.value = hasCurrentPromptRules ? savedPrompt : DEFAULT_SYSTEM_PROMPT;
+const hasOldPromptRules = savedPrompt && savedPrompt.includes("Start replies with \"3 days.\" sometimes");
+systemPromptInput.value = savedPrompt && !hasOldPromptRules ? savedPrompt : DEFAULT_SYSTEM_PROMPT;
 renderMessage("assistant", OPENING_GREETING);
 messageInput.focus();
 initExplosionTimer();

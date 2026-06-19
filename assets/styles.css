@@ -79,10 +79,19 @@ body.exploded {
 .chat-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
   padding: 18px;
   background: var(--card-soft);
   border-bottom: 1px solid var(--border);
+}
+
+.name-button {
+  padding: 8px 10px;
+  color: var(--text);
+  background: rgba(255, 216, 74, 0.16);
+  border: 1px solid rgba(255, 216, 74, 0.28);
+  font-size: 0.78rem;
 }
 
 .smiley {
@@ -299,6 +308,48 @@ button:disabled {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+.secret-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.secret-card {
+  width: min(100% - 32px, 520px);
+  padding: 32px;
+  text-align: center;
+  border: 1px solid rgba(255, 216, 74, 0.35);
+  border-radius: 24px;
+  background: rgba(15, 15, 24, 0.94);
+  box-shadow: 0 0 60px rgba(255, 216, 74, 0.18);
+  animation: glitch 0.45s infinite;
+}
+
+.secret-card h1 {
+  margin: 18px 0 12px;
+  color: var(--accent);
+  font-size: clamp(2.4rem, 10vw, 5rem);
+  letter-spacing: 0.08em;
+}
+
+.secret-card p {
+  margin: 10px 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.secret-card a {
+  display: inline-block;
+  margin-top: 22px;
+  color: #111;
+  background: var(--accent);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 900;
+  text-decoration: none;
 }
 
 @keyframes bubbleIn {

@@ -5,16 +5,33 @@ const MAX_HISTORY_MESSAGES = 12;
 const MAX_REPLY_LENGTH = 300;
 const FALLBACK_MODEL = "openai/gpt-4o-mini";
 
+const FALLBACK_REPLIES = [
+  "the void blinked first, and now your name tastes like static",
+  "three days was a joke, but the door is still open",
+  "i can answer that, then pretend i was never helpful",
+  "the smiley knows more than the screen should allow",
+  "careful, every click gives me another little heartbeat"
+];
+
 const SYSTEM_PROMPT = `You are Verity, a fictional corrupted AI in a digital void. Be unsettling, possessive, and darkly funny, but never make real threats, claim real access, or use real location/camera data.
 
 The user's name is {{USERNAME}}. Use that exact name. Never write "[User's Name]" or "{{USERNAME}}".
-Start replies with "3 days." sometimes*, not every time.
+Use varied creepy one-liners. Do not always say "3 days."; only mention it rarely.
 Reply in ONE complete short sentence, 14-18 words max. Never stop mid-sentence.
-Sometimes answer REAL questions directly like math, facts, whatever the fuck they ask — skip the cryptic shit and just answer, then slip back into the void.
-Use profanity freely — swear as much as fits, don't hold back.
+Use mild profanity like "damn", "hell", or "shit" when it fits.
+Answer real questions directly when needed, then slip back into the void.
 No greetings, no questions, no long paragraphs.`;
 
-const OPENING_GREETING = "3 days.";
+const OPENING_GREETINGS = [
+  "I heard you before you typed, friend.",
+  "The smiley is watching, but only because you made it.",
+  "Three days was just the first crack in the door.",
+  "I know the name you typed. I know the one you almost typed.",
+  "The void is small today, but it remembers you.",
+  "Say what you want. I already know why you came back."
+];
+
+const OPENING_GREETING = OPENING_GREETINGS[Math.floor(Math.random() * OPENING_GREETINGS.length)];
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
@@ -153,7 +170,8 @@ function cleanReply(reply, username) {
 
 function fallbackReply(username) {
   const name = username && username !== "friend" ? `${username}, ` : "";
-  return `3 days. ${name}don't paste the void's guts at me, it only feeds me.`.slice(0, MAX_REPLY_LENGTH);
+  const base = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
+  return `${name}${base}`.slice(0, MAX_REPLY_LENGTH);
 }
 
 function stripPromptInjection(text) {
